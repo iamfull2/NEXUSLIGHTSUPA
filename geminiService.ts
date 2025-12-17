@@ -175,11 +175,6 @@ export const executeBatchNexus = async (config: BatchConfig, onProgress: (count:
 
 export const analyzeTrends = async () => ({ trendName: "Neon Future", concepts: [{ concept: "Cyberpunk Samurai", style: "cinematic", mood: "MOODDOPAMINEFLOOD" }] });
 
-/**
- * GENERATE NEXUS VIDEO (Veo 3.1)
- * Fixed signature to accept 5 arguments as required by calling components.
- * Implemented logic following @google/genai guidelines for Veo models.
- */
 export const generateNexusVideo = async (
     prompt: string, 
     image?: string, 
@@ -187,7 +182,6 @@ export const generateNexusVideo = async (
     duration: string = '5s', 
     resolution: '720p' | '1080p' = '720p'
 ): Promise<string> => {
-    // Veo models require user key selection as per mandatory guidelines
     if (typeof window !== 'undefined' && (window as any).aistudio) {
         const hasKey = await (window as any).aistudio.hasSelectedApiKey();
         if (!hasKey) {
@@ -197,13 +191,12 @@ export const generateNexusVideo = async (
 
     try {
         return await runNexusRequest(async (client) => {
-            // Mapping aliases to full model names as per guidelines
             const model = modelAlias === 'veo-hq' ? 'veo-3.1-generate-preview' : 'veo-3.1-fast-generate-preview';
             
             const videoConfig: any = {
                 numberOfVideos: 1,
                 resolution,
-                aspectRatio: '16:9', // Defaulting to landscape; supported are 16:9 and 9:16
+                aspectRatio: '16:9',
             };
 
             const payload: any = {
@@ -213,7 +206,6 @@ export const generateNexusVideo = async (
             };
 
             if (image) {
-                // Handling base64 image data from data URLs
                 const data = image.includes('base64,') ? image.split(',')[1] : image;
                 const mimeType = image.includes('image/') ? image.substring(image.indexOf(':') + 1, image.indexOf(';')) : 'image/png';
                 payload.image = {
@@ -224,24 +216,21 @@ export const generateNexusVideo = async (
 
             let operation = await client.models.generateVideos(payload);
             
-            // Poll for operation completion
             while (!operation.done) {
                 await new Promise(resolve => setTimeout(resolve, 10000));
                 operation = await client.operations.getVideosOperation({ operation: operation });
             }
 
             const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-            if (!downloadLink) throw new Error("Falha na síntese: URI do vídeo não encontrada.");
+            if (!downloadLink) throw new Error("Falha na síntese de vídeo.");
 
-            // Must append API key when fetching from the download link
             const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
-            if (!response.ok) throw new Error("Erro ao baixar o vídeo gerado.");
+            if (!response.ok) throw new Error("Erro ao baixar vídeo.");
             
             const videoBlob = await response.blob();
             return URL.createObjectURL(videoBlob);
         });
     } catch (error: any) {
-        // Reset key selection if required per guidelines
         if (error.message?.includes("Requested entity was not found.")) {
              if (typeof window !== 'undefined' && (window as any).aistudio?.openSelectKey) {
                  await (window as any).aistudio.openSelectKey();
@@ -251,7 +240,16 @@ export const generateNexusVideo = async (
     }
 };
 
-export const generateAutonomousImage = async (c: any) => {
+export const generateAutonomousImage = async (c: any): Promise<MarketListing> => {
     const res = await executeNexusSwarm(c);
-    return { id: Math.random().toString(36), imageUrl: res.imageUrl, concept: c.concept, style: c.style, price: 50, trendScore: 95, status: 'listed', timestamp: Date.now() };
+    return { 
+        id: Math.random().toString(36), 
+        imageUrl: res.imageUrl, 
+        concept: c.concept, 
+        style: c.style, 
+        price: 50, 
+        trendScore: 95, 
+        status: 'listed' as const, 
+        timestamp: Date.now() 
+    };
 };

@@ -1,7 +1,5 @@
-
 import { PerfectCutoutEngine } from "./perfectCutout";
 import { runNexusRequest } from "./geminiService";
-import { GenerateContentResponse } from "@google/genai";
 import { SceneLayer } from "./types";
 
 /**
@@ -97,11 +95,11 @@ export class LiveEditorService {
         let components = { bg: prompt + " background", mid: prompt + " subject", fg: "atmospheric particles" };
         
         try {
-            const analysisRes = await runNexusRequest<GenerateContentResponse>(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash',
+            // Fixed: runNexusRequest is not generic and requires 3 arguments. Used gemini-3-flash-preview.
+            const analysisRes = await runNexusRequest("generateContent", 'gemini-3-flash-preview', {
                 contents: { parts: [{ text: decompositionPrompt }] },
                 config: { responseMimeType: "application/json" }
-            }));
+            });
             const parsed = JSON.parse(analysisRes.text || "{}");
             if (parsed.bg) components = parsed;
         } catch (e) {
@@ -154,13 +152,13 @@ export class LiveEditorService {
         console.log("🎨 Generative Request:", prompt.substring(0, 50) + "...");
         
         try {
-            const response = await runNexusRequest<GenerateContentResponse>(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: runNexusRequest is not generic and requires 3 arguments. Used gemini-2.5-flash-image.
+            const response = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { parts: [{ text: prompt }] },
                 config: { 
                     imageConfig: { aspectRatio: aspectRatio },
                 }
-            }));
+            });
 
             // Iterate parts to find image, following guidelines
             if (response.candidates?.[0]?.content?.parts) {
@@ -216,15 +214,15 @@ export class LiveEditorService {
             const mimeType = image.substring(image.indexOf(':') + 1, image.indexOf(';'));
             const base64 = image.split(',')[1];
 
-            const response = await runNexusRequest<GenerateContentResponse>(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: Correct signature for runNexusRequest and removed incorrect generic type argument.
+            const response = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { 
                     parts: [
                         { inlineData: { mimeType, data: base64 } },
                         { text: prompt }
                     ] 
                 }
-            }));
+            });
 
             if (response.candidates?.[0]?.content?.parts) {
                 for (const part of response.candidates[0].content.parts) {

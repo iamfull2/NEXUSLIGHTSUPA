@@ -1,7 +1,5 @@
-
 import { CloneAnalysisResult } from "./types";
 import { runNexusRequest } from "./geminiService";
-import { GenerateContentResponse } from "@google/genai";
 
 /**
  * AI CLONE ULTRA V3.0 (Client-Side Adaptation)
@@ -19,8 +17,8 @@ export class AICloneUltraV2 {
 
             console.log("👁️ AI Clone V3: Analyzing Reference Image...");
 
-            const response = await runNexusRequest<GenerateContentResponse>(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash',
+            // Fixed: runNexusRequest is not generic and requires 3 arguments. Used gemini-3-flash-preview.
+            const response = await runNexusRequest("generateContent", 'gemini-3-flash-preview', {
                 contents: [
                     {
                         parts: [
@@ -41,7 +39,7 @@ export class AICloneUltraV2 {
                         ]
                     }
                 ]
-            }));
+            });
 
             const text = response.text || "";
             const jsonMatch = text.match(/\{[\s\S]*\}/);

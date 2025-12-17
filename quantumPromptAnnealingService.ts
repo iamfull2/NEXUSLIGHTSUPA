@@ -1,4 +1,3 @@
-
 import { runNexusRequest } from "./geminiService";
 import { PromptState, AnnealingSchedule } from "./types";
 import { QuantumComposer } from "./quantumComposer";
@@ -19,37 +18,35 @@ export class QuantumPromptAnnealingService {
         console.log("⚛️ QPA: Initializing Superposition...");
         
         try {
-            return await runNexusRequest(async (client) => {
-                const response = await client.models.generateContent({
-                    model: 'gemini-2.5-flash',
-                    contents: { parts: [{ text: `
-                        You are a Quantum Prompt Engineer.
-                        User Intent: "${userIntent}"
-                        
-                        Generate 5 distinct prompt variations for this intent with different contexts:
-                        1. Cinematic
-                        2. Mythological
-                        3. Futuristic
-                        4. Artistic
-                        5. Technical
-                        
-                        Return ONLY a valid JSON array of strings (the prompts). No markdown blocks.
-                    ` }] },
-                    config: { responseMimeType: "application/json" }
-                });
-                
-                const text = response.text || "[]";
-                // Cleanup potentially messy JSON
-                const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-                const prompts: string[] = JSON.parse(cleanText);
-                
-                return prompts.map(p => ({
-                    primary: p,
-                    // We use local energy function for speed in the initial state mapping
-                    energy: QuantumComposer.calculateEnergy(p), 
-                    temperature: 1.0
-                }));
+            // Fixed: runNexusRequest requires 3 arguments. Used gemini-3-flash-preview.
+            const response = await runNexusRequest("generateContent", 'gemini-3-flash-preview', {
+                contents: { parts: [{ text: `
+                    You are a Quantum Prompt Engineer.
+                    User Intent: "${userIntent}"
+                    
+                    Generate 5 distinct prompt variations for this intent with different contexts:
+                    1. Cinematic
+                    2. Mythological
+                    3. Futuristic
+                    4. Artistic
+                    5. Technical
+                    
+                    Return ONLY a valid JSON array of strings (the prompts). No markdown blocks.
+                ` }] },
+                config: { responseMimeType: "application/json" }
             });
+            
+            const text = response.text || "[]";
+            // Cleanup potentially messy JSON
+            const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            const prompts: string[] = JSON.parse(cleanText);
+            
+            return prompts.map(p => ({
+                primary: p,
+                // We use local energy function for speed in the initial state mapping
+                energy: QuantumComposer.calculateEnergy(p), 
+                temperature: 1.0
+            }));
         } catch (e) {
             console.warn("Superposition failed, using single state", e);
             // Fallback to local perturbation if Gemini fails

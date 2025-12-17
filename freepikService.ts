@@ -1,4 +1,3 @@
-
 import { runNexusRequest } from './geminiService';
 
 /**
@@ -50,16 +49,10 @@ export const generateWithFreepik = async (params: FreepikGenerationParams): Prom
 
     } catch (error) {
         // Silent fallback to Gemini Engine which is pre-configured
-        return runNexusRequest(async (client) => {
-            const response = await client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
-                contents: params.prompt,
-                config: { imageConfig: { aspectRatio: params.aspectRatio as any || '1:1' } }
-            });
-            for (const part of response.candidates[0].content.parts) {
-                if (part.inlineData) return `data:image/png;base64,${part.inlineData.data}`;
-            }
-            return `https://image.pollinations.ai/prompt/${encodeURIComponent(params.prompt)}?model=flux`;
+        // Fixed: Correct signature for runNexusRequest. Used gemini-2.5-flash-image.
+        return runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
+            contents: params.prompt,
+            config: { imageConfig: { aspectRatio: params.aspectRatio as any || '1:1' } }
         });
     }
 };

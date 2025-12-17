@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { BatchConfig, FlowExecutionRequest, WorkflowNode, WorkflowEdge, WorkflowNodeType, WorkflowNodeData } from '../types';
 import { executeNexusSwarm, generateNexusVideo, runNexusRequest } from '../geminiService';
@@ -137,8 +136,8 @@ const BatchControlPanel: React.FC<BatchControlPanelProps> = () => {
                 
                 if (!inputTxt) throw new Error("Sem texto de entrada para o Agente.");
 
-                const response = await runNexusRequest(async (client) => client.models.generateContent({
-                    model: 'gemini-2.5-flash',
+                // Fixed: runNexusRequest requires 3 arguments. Used gemini-3-flash-preview as recommended.
+                const response = await runNexusRequest("generateContent", 'gemini-3-flash-preview', {
                     contents: { parts: [{ text: `
                         [SYSTEM: ${roleDescription}]
                         [INPUT: "${inputTxt}"]
@@ -148,7 +147,7 @@ const BatchControlPanel: React.FC<BatchControlPanelProps> = () => {
                         
                         OUTPUT (Apenas o resultado final):
                     ` }] }
-                }));
+                });
 
                 const processedText = response.text || "Erro no processamento LLM.";
                 updateNodeOutput(nodeId, 'text', processedText);

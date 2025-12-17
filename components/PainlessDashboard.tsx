@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ThumbnailConfig } from '../types';
 import { ThumbnailComposer } from '../thumbnailComposer';
@@ -45,11 +44,11 @@ const PainlessDashboard: React.FC<PainlessDashboardProps> = ({ onImageGenerated 
         setIsProcessing(true);
         try {
             // 1. Generate Background
-            const bgRes = await runNexusRequest(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: runNexusRequest requires 3 arguments. Used gemini-2.5-flash-image for images.
+            const bgRes = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { parts: [{ text: "Epic dark abstract background, youtube thumbnail style, 8k --no text" }] },
                 config: { imageConfig: { aspectRatio: '16:9' } }
-            }));
+            });
             let bgUrl = '';
              // @ts-ignore
             if (bgRes.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
@@ -60,11 +59,11 @@ const PainlessDashboard: React.FC<PainlessDashboardProps> = ({ onImageGenerated 
             // 2. Main Image
             let mainUrl = mainImageFile;
             if (!mainUrl) {
-                const charRes = await runNexusRequest(async (client) => client.models.generateContent({
-                    model: 'gemini-2.5-flash-image',
+                // Fixed: Correct signature for runNexusRequest.
+                const charRes = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                     contents: { parts: [{ text: "Surprised youtuber face, studio lighting, isolated on white" }] },
                     config: { imageConfig: { aspectRatio: '1:1' } }
-                }));
+                });
                  // @ts-ignore
                  if (charRes.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                     // @ts-ignore
@@ -77,11 +76,11 @@ const PainlessDashboard: React.FC<PainlessDashboardProps> = ({ onImageGenerated 
 
             // 3. Floating Element
             const elPrompt = ELEMENT_PRESETS['fire'];
-            const elRes = await runNexusRequest(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: Correct signature for runNexusRequest.
+            const elRes = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { parts: [{ text: elPrompt }] },
                 config: { imageConfig: { aspectRatio: '1:1' } }
-            }));
+            });
             let elUrl = '';
              // @ts-ignore
              if (elRes.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
@@ -127,11 +126,11 @@ const PainlessDashboard: React.FC<PainlessDashboardProps> = ({ onImageGenerated 
         setIsProcessing(true);
         try {
             const prompt = ELEMENT_PRESETS[selectedElement];
-            const res = await runNexusRequest(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: runNexusRequest requires 3 arguments.
+            const res = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { parts: [{ text: prompt }] },
                 config: { imageConfig: { aspectRatio: '1:1' } }
-            }));
+            });
              // @ts-ignore
              if (res.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                  // @ts-ignore
@@ -146,11 +145,11 @@ const PainlessDashboard: React.FC<PainlessDashboardProps> = ({ onImageGenerated 
         setIsProcessing(true);
         try {
             const prompt = BG_PRESETS[selectedBg];
-            const res = await runNexusRequest(async (client) => client.models.generateContent({
-                model: 'gemini-2.5-flash-image',
+            // Fixed: runNexusRequest requires 3 arguments.
+            const res = await runNexusRequest("generateContent", 'gemini-2.5-flash-image', {
                 contents: { parts: [{ text: prompt }] },
                 config: { imageConfig: { aspectRatio: '16:9' } }
-            }));
+            });
              // @ts-ignore
              if (res.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                  // @ts-ignore

@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus Light Designer</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23e2e8f0;stop-opacity:1' /%3E%3Cstop offset='50%25' style='stop-color:%2364748b;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230f172a;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)' stroke='%2300f0ff' stroke-width='4' /%3E%3Ccircle cx='50' cy='50' r='12' fill='%2300f0ff' /%3E%3Cpath d='M50 5 L50 15 M50 85 L50 95 M5 50 L15 50 M85 50 L95 50' stroke='%2300f0ff' stroke-width='2' opacity='0.5' /%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        nexus: {
+                            'bg-deep': 'var(--nexus-bg-deep)',
+                            bg: 'var(--nexus-bg)',
+                            panel: 'var(--nexus-panel)',
+                            surface: 'var(--nexus-surface)',
+                            border: 'var(--nexus-border)',
+                            'border-light': 'var(--nexus-border-light)',
+                            accent: 'var(--nexus-accent)',
+                            secondary: 'var(--nexus-secondary)',
+                            success: 'var(--nexus-success)',
+                            text: 'var(--nexus-text)',
+                            dim: 'var(--nexus-dim)',
+                            'grad-start': 'var(--nexus-grad-start)',
+                            'grad-mid': 'var(--nexus-grad-mid)',
+                            'grad-end': 'var(--nexus-grad-end)',
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shine': 'shine 1.5s ease-in-out infinite',
+                        'flow': 'flow 1s linear infinite',
+                        'gradient-x': 'gradient-x 3s ease infinite',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(0, 240, 255, 0.2)' },
+                            '100%': { boxShadow: '0 0 20px rgba(0, 240, 255, 0.6)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        shine: {
+                            '0%': { transform: 'translateX(-100%) skewX(-15deg)' },
+                            '100%': { transform: 'translateX(200%) skewX(-15deg)' }
+                        },
+                        flow: {
+                            '0%': { strokeDashoffset: '20' },
+                            '100%': { strokeDashoffset: '0' }
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            /* Base Layer - Dark Blue Theme */
+            --nexus-bg-deep: #02040a;
+            --nexus-bg: #050810;
+            --nexus-panel: #0b101b;
+            --nexus-surface: #151b2e;
+            
+            /* Borders */
+            --nexus-border: #1e293b;
+            --nexus-border-light: #334155;
+
+            /* Brand Colors - Cyan to Deep Blue */
+            --nexus-accent: #00f0ff;     /* Cyan Neon */
+            --nexus-secondary: #2563eb;  /* Royal Blue */
+            --nexus-success: #00ff9d;
+            
+            /* Typography */
+            --nexus-text: #e0f2fe;
+            --nexus-dim: #94a3b8;
+            
+            /* Gradients */
+            --nexus-grad-start: #02040a;
+            --nexus-grad-mid: #0b101b;
+            --nexus-grad-end: #0f172a;
+
+            /* Physics */
+            --ease-elastic: cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .light-mode {
+            /* Base Layer */
+            --nexus-bg-deep: #f0f9ff;
+            --nexus-bg: #f8fafc;
+            --nexus-panel: #ffffff;
+            --nexus-surface: #e0f2fe;
+
+            /* Borders */
+            --nexus-border: #bae6fd;
+            --nexus-border-light: #7dd3fc;
+
+            /* Brand Colors */
+            --nexus-accent: #0284c7;
+            --nexus-secondary: #0369a1;
+            --nexus-success: #10b981;
+
+            /* Typography */
+            --nexus-text: #0c4a6e;
+            --nexus-dim: #475569;
+
+            /* Gradients */
+            --nexus-grad-start: #f0f9ff;
+            --nexus-grad-mid: #e0f2fe;
+            --nexus-grad-end: #bae6fd;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--nexus-bg);
+            color: var(--nexus-text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            height: 100%;
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh logic on mobile apps */
+            touch-action: manipulation;
+        }
+        
+        /* Mobile Scrollbar hiding but functional */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-panel {
+            background: var(--nexus-panel);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--nexus-border);
+            opacity: 0.98;
+            transition: border-color 0.3s var(--ease-elastic), box-shadow 0.3s var(--ease-elastic);
+        }
+        .light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .nexus-gradient-text {
+            background: linear-gradient(135deg, var(--nexus-accent) 0%, var(--nexus-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* --- ULTRA-SMOOTH INTERACTIVE STATES --- */
+        
+        button, a, [role="button"], input, textarea, select, .interactive-card {
+            transition: all 0.4s var(--ease-elastic);
+        }
+
+        /* Hover: Lift & Subtle Glow - Disabled on Touch Devices for better UX */
+        @media (hover: hover) {
+            button:hover:not(:disabled):not(.no-scale), 
+            a:hover:not([href="#"]):not(:disabled):not(.no-scale),
+            [role="button"]:hover:not(:disabled):not(.no-scale) {
+                transform: translateY(-2px) scale(1.01);
+                filter: brightness(1.1);
+            }
+        }
+
+        /* Active: Press Down */
+        button:active:not(:disabled), a:active:not(:disabled), [role="button"]:active:not(:disabled) {
+            transform: translateY(1px) scale(0.98);
+            filter: brightness(0.95);
+        }
+
+        /* Focus States: Magnetic Pull */
+        input:focus:not([type="range"]), 
+        textarea:focus, 
+        select:focus {
+            transform: scale(1.005);
+            border-color: var(--nexus-secondary) !important;
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+        }
+
+        /* SVG Line Flow Animation */
+        .flow-line {
+            stroke-dasharray: 10;
+            animation: flow 1s linear infinite;
+        }
+
+        /* Spotlight Card Effect Helper */
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Utility overrides */
+        .light-mode .text-white, .light-mode .text-gray-200, .light-mode .text-gray-300 {
+            color: var(--nexus-text) !important;
+        }
+        .light-mode .text-gray-400, .light-mode .text-gray-500 {
+            color: var(--nexus-dim) !important;
+        }
+        .light-mode .border-gray-700, .light-mode .border-gray-800 {
+            border-color: var(--nexus-border) !important;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2",
+    "vite": "https://aistudiocdn.com/vite@^7.2.7"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
